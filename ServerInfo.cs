@@ -8,16 +8,15 @@ namespace MySQLWorker
 {
     public class ServerInfo
     {
-        
         public string ConnectionPath { get; set; }
 
         private string server_ip;
-        public string ServerIp { 
+        public string ServerIp {
             get => server_ip;
             set {
                 server_ip = value;
                 UpdateConnectionPath();
-            } 
+            }
         }
 
         private string login;
@@ -38,11 +37,11 @@ namespace MySQLWorker
             }
         }
 
-        private string database_name;
-        public string DatabaseName{
-            get => database_name;
+        private string database;
+        public string Database {
+            get => database;
             set {
-                database_name = value;
+                database = value;
                 UpdateConnectionPath();
             }
         }
@@ -69,7 +68,7 @@ namespace MySQLWorker
         {
             this.ConnectionPath = string.Empty;
             this.server_ip = string.Empty;
-            this.database_name = string.Empty;
+            this.database = string.Empty;
             this.login = string.Empty;
             this.password = string.Empty;
             this.table_name = string.Empty;
@@ -78,7 +77,7 @@ namespace MySQLWorker
 
         public void UpdateConnectionPath()
         {
-            this.ConnectionPath = $@"Data Source={this.ServerIp};Initial Catalog={this.DatabaseName};User Id = {this.Login};Password = {this.Password};Integrated Security={this.IntegratedSecurity};";
+            this.ConnectionPath = $@"Data Source={this.ServerIp};Initial Catalog={this.Database};User Id = {this.Login};Password = {this.Password};Integrated Security={this.IntegratedSecurity};Connection Timeout=1;";
         }
     }
 }

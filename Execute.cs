@@ -9,73 +9,63 @@ namespace MySQLWorker
 {
     public class Execute
     {
-        /// <summary>
-        /// execute SELECT command
-        /// </summary>
-        /// <param name="select_what">what to select</param>
-        /// <param name="select_from">select from</param>
-        /// <param name="connection_path">path with connection</param>
-        /// <returns></returns>
-        public static string[] QuerySelect(in string select_what, in string select_from, in string connection_path) {
-            List<string> result = new List<string>();
+        public static object[,] QuerySelect(in string select_what, in string select_from, in string connection_path)
+        {
+            object[,] result;
 
+            //подключение к бд
             using (SqlConnection connection = new SqlConnection(connection_path)) {
                 connection.Open();
 
+                //команда для выполнения
                 string COMMAND = $"SELECT {select_what} FROM {select_from};";
                 using (SqlCommand command = new SqlCommand(COMMAND, connection)) {
-                    
+                    //получает данные
                     SqlDataReader data = command.ExecuteReader();
-
-                    result.Add(ReadTableColumnTitles(data));
-                    result.AddRange(ReadTableRows(data).ToList());
-
+                    result = ReadData(data);
                 }
                 connection.Close();
             }
-            return result.ToArray();
+
+            return result;
         }
 
         //returns rows from table
-        private static string[] ReadTableRows(in SqlDataReader data) {
-            List<string> rows = new List<string>();
+        private static object[,] ReadData(in SqlDataReader data)
+        {
+            object[,] rows = new string[1, data.FieldCount];
 
-            while (data.Read()) {
-                string temp = String.Empty;
-
-                for (int i = 0; i < data.FieldCount; i++) {
-                    temp += (data.GetValue(i) == DBNull.Value) ? "NULL," : $"{data.GetValue(i)},";
-                }
-                temp = temp.Remove(temp.Length - 1, 1);
-
-                rows.Add(temp);
-            }
-
-            return rows.ToArray();
-        }
-
-
-        //returns column names from table
-        private static string ReadTableColumnTitles(in SqlDataReader data) {
-            string titles = String.Empty;
-
+            //строка с полями
             for (int i = 0; i < data.FieldCount; i++) {
-                titles += $"{data.GetName(i)},";
+                rows[rows.GetLength(0) - 1, i] = data.GetName(i);
             }
-            titles = titles.Remove(titles.Length - 1, 1);
+            //строки с данными
+            while (data.Read()) {
+                rows = ResizeArray(in rows, rows.GetLength(0) + 1, rows.GetLength(1));
+                for (int i = 0; i < data.FieldCount; i++) {
+                    rows[rows.GetLength(0) - 1, i] = (data.GetValue(i) == DBNull.Value) ? "NULL" : data.GetValue(i);
+                }
+            }
+            return rows;
+        }
 
-            return titles;
+        static T[,] ResizeArray<T>(in T[,] original, int rows, int cols)
+        {
+            T[,] newArray = new T[rows, cols];
+            int minRows = Math.Min(rows, original.GetLength(0));
+            int minCols = Math.Min(cols, original.GetLength(1));
+
+            for (int i = 0; i < minRows; i++)
+                for (int j = 0; j < minCols; j++)
+                    newArray[i, j] = original[i, j];
+            return newArray;
         }
 
 
-        /// <summary>
-        /// execute INSERT command. Only one value
-        /// </summary>
-        /// <param name="table">your table</param>
-        /// <param name="col_name">column title</param>
-        /// <param name="value">insert value</param>
-        /// <param name="connection_path">path with connection</param>
-        public static void QueryInsertSingleValue(in string table, in string col_name, in string value, in string connection_path) {
+
+        // execute INSERT command. Only one value
+        public static void QueryInsertSingleValue(in string table, in string col_name, in string value, in string connection_path)
+        {
             using (SqlConnection connection = new SqlConnection(connection_path)) {
                 connection.Open();
 
@@ -93,14 +83,9 @@ namespace MySQLWorker
             }
         }
 
-        /// <summary>
-        /// execute INSERT command. For all or a few values
-        /// </summary>
-        /// <param name="table">your table</param>
-        /// <param name="col_names">column titles</param>
-        /// <param name="values">insert values</param>
-        /// <param name="connection_path">path with connection</param>
-        public static void QueryInsertMultyValues(in string table, in string[] col_names, in string[] values, in string connection_path) {
+        // execute INSERT command. For all or a few values
+        public static void QueryInsertMultyValues(in string table, in string[] col_names, in string[] values, in string connection_path)
+        {
             using (SqlConnection connection = new SqlConnection(connection_path)) {
                 connection.Open();
 
