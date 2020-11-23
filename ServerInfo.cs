@@ -8,14 +8,14 @@ namespace MySQLWorker
 {
     public class ServerInfo
     {
-        public event EventHandler ConnectionChanged;
+        public string ConnectionPath { get; set; }
 
         private string server_ip;
         public string ServerIp {
             get => server_ip;
             set {
                 server_ip = value;
-                ConnectionChanged?.Invoke(this, new EventArgs());
+                UpdateConnectionPath();
             }
         }
 
@@ -24,7 +24,7 @@ namespace MySQLWorker
             get => login;
             set {
                 login = value;
-                ConnectionChanged?.Invoke(this, new EventArgs());
+                UpdateConnectionPath();
             }
         }
 
@@ -33,7 +33,7 @@ namespace MySQLWorker
             get => password;
             set {
                 password = value;
-                ConnectionChanged?.Invoke(this, new EventArgs());
+                UpdateConnectionPath();
             }
         }
 
@@ -42,36 +42,34 @@ namespace MySQLWorker
             get => database;
             set {
                 database = value;
-                ConnectionChanged?.Invoke(this, new EventArgs());
+                UpdateConnectionPath();
             }
         }
 
-        private string table_name;
-        public string TableName {
-            get => table_name;
-            set {
-                table_name = value;
-                ConnectionChanged?.Invoke(this, new EventArgs());
-            }
-        }
 
         private bool integrated_security;
         public bool IntegratedSecurity {
             get => integrated_security;
             set {
                 integrated_security = value;
-                ConnectionChanged?.Invoke(this, new EventArgs());
+                UpdateConnectionPath();
             }
         }
 
         public ServerInfo()
         {
-            this.ServerIp = string.Empty;
-            this.Database = string.Empty;
-            this.Login = string.Empty;
-            this.Password = string.Empty;
-            this.TableName = string.Empty;
-            this.IntegratedSecurity = false;
+            this.ConnectionPath = string.Empty;
+            this.server_ip = string.Empty;
+            this.database = string.Empty;
+            this.login = string.Empty;
+            this.password = string.Empty;
+            this.table_name = string.Empty;
+            this.integrated_security = false;
+        }
+
+        public void UpdateConnectionPath()
+        {
+            this.ConnectionPath = $@"Data Source={this.ServerIp};Initial Catalog={this.Database};User Id = {this.Login};Password = {this.Password};Integrated Security={this.IntegratedSecurity};Connection Timeout=1;";
         }
     }
 }
