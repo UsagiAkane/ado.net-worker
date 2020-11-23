@@ -84,7 +84,7 @@ namespace MySQLWorker
         }
 
         // execute INSERT command. For all or a few values
-        public static void QueryInsertMultyValues(in string table, in string[] col_names, in string[] values, in string connection_path)
+        public static void QueryInsertMultyValues(in string table, in string[] col_names, in object[] values, in string connection_path)
         {
             using (SqlConnection connection = new SqlConnection(connection_path)) {
                 connection.Open();

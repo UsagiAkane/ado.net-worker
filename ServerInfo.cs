@@ -8,14 +8,14 @@ namespace MySQLWorker
 {
     public class ServerInfo
     {
-        public string ConnectionPath { get; set; }
+        public event EventHandler ConnectionChanged;
 
         private string server_ip;
         public string ServerIp {
             get => server_ip;
             set {
                 server_ip = value;
-                UpdateConnectionPath();
+                ConnectionChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -24,7 +24,7 @@ namespace MySQLWorker
             get => login;
             set {
                 login = value;
-                UpdateConnectionPath();
+                ConnectionChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -33,7 +33,7 @@ namespace MySQLWorker
             get => password;
             set {
                 password = value;
-                UpdateConnectionPath();
+                ConnectionChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -42,7 +42,7 @@ namespace MySQLWorker
             get => database;
             set {
                 database = value;
-                UpdateConnectionPath();
+                ConnectionChanged?.Invoke(this, new EventArgs());
             }
         }
 
@@ -52,24 +52,17 @@ namespace MySQLWorker
             get => integrated_security;
             set {
                 integrated_security = value;
-                UpdateConnectionPath();
+                ConnectionChanged?.Invoke(this, new EventArgs());
             }
         }
 
         public ServerInfo()
         {
-            this.ConnectionPath = string.Empty;
             this.server_ip = string.Empty;
             this.database = string.Empty;
             this.login = string.Empty;
             this.password = string.Empty;
-            this.table_name = string.Empty;
             this.integrated_security = false;
-        }
-
-        public void UpdateConnectionPath()
-        {
-            this.ConnectionPath = $@"Data Source={this.ServerIp};Initial Catalog={this.Database};User Id = {this.Login};Password = {this.Password};Integrated Security={this.IntegratedSecurity};Connection Timeout=1;";
         }
     }
 }
