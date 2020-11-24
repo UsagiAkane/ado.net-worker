@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data.SqlClient;
-using System.Data;
 
 namespace MySQLWorker
 {
     public class Execute
     {
-        public static object[,] QuerySelect(in string select_what, in string select_from, in string connection_path)
-        {
+        public static object[,] QuerySelect(in string select_what, in string select_from, in string select_where, in string connection_path) {
             object[,] result;
 
             //подключение к бд
@@ -18,7 +13,11 @@ namespace MySQLWorker
                 connection.Open();
 
                 //команда для выполнения
-                string COMMAND = $"SELECT {select_what} FROM {select_from};";
+                string COMMAND = string.Empty;
+                if (select_where == null)
+                    COMMAND = $"SELECT {select_what} FROM {select_from};";
+                else
+                    COMMAND = $"SELECT {select_what} FROM {select_from} WHERE {select_where};";
                 using (SqlCommand command = new SqlCommand(COMMAND, connection)) {
                     //получает данные
                     SqlDataReader data = command.ExecuteReader();
@@ -31,8 +30,7 @@ namespace MySQLWorker
         }
 
         //returns rows from table
-        private static object[,] ReadData(in SqlDataReader data)
-        {
+        internal static object[,] ReadData(in SqlDataReader data) {
             object[,] rows = new string[1, data.FieldCount];
 
             //строка с полями
@@ -49,8 +47,20 @@ namespace MySQLWorker
             return rows;
         }
 
-        static T[,] ResizeArray<T>(in T[,] original, int rows, int cols)
-        {
+        internal static void CustomQueryExec(in string query, in string connection_path) {
+            using (SqlConnection connection = new SqlConnection(connection_path)) {
+                connection.Open();
+
+                //команда для выполнения
+                string COMMAND = string.Empty;
+                COMMAND = query;
+
+                using (SqlCommand command = new SqlCommand(COMMAND, connection)) { SqlDataReader data = command.ExecuteReader(); }
+                connection.Close();
+            }
+        }
+
+        internal static T[,] ResizeArray<T>(in T[,] original, int rows, int cols) {
             T[,] newArray = new T[rows, cols];
             int minRows = Math.Min(rows, original.GetLength(0));
             int minCols = Math.Min(cols, original.GetLength(1));
@@ -61,11 +71,8 @@ namespace MySQLWorker
             return newArray;
         }
 
-
-
         // execute INSERT command. Only one value
-        public static void QueryInsertSingleValue(in string table, in string col_name, in string value, in string connection_path)
-        {
+        public static void QueryInsertSingleValue(in string table, in string col_name, in string value, in string connection_path) {
             using (SqlConnection connection = new SqlConnection(connection_path)) {
                 connection.Open();
 
@@ -84,8 +91,7 @@ namespace MySQLWorker
         }
 
         // execute INSERT command. For all or a few values
-        public static void QueryInsertMultyValues(in string table, in string[] col_names, in object[] values, in string connection_path)
-        {
+        public static void QueryInsertMultyValues(in string table, in string[] col_names, in object[] values, in string connection_path) {
             using (SqlConnection connection = new SqlConnection(connection_path)) {
                 connection.Open();
 

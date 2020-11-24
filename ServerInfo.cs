@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MySQLWorker
 {
@@ -11,6 +7,7 @@ namespace MySQLWorker
         public event EventHandler ConnectionChanged;
 
         private string server_ip;
+
         public string ServerIp {
             get => server_ip;
             set {
@@ -20,6 +17,7 @@ namespace MySQLWorker
         }
 
         private string login;
+
         public string Login {
             get => login;
             set {
@@ -29,6 +27,7 @@ namespace MySQLWorker
         }
 
         private string password;
+
         public string Password {
             get => password;
             set {
@@ -38,6 +37,7 @@ namespace MySQLWorker
         }
 
         private string database;
+
         public string Database {
             get => database;
             set {
@@ -46,8 +46,8 @@ namespace MySQLWorker
             }
         }
 
-
         private bool integrated_security;
+
         public bool IntegratedSecurity {
             get => integrated_security;
             set {
@@ -56,8 +56,7 @@ namespace MySQLWorker
             }
         }
 
-        public ServerInfo()
-        {
+        public ServerInfo() {
             this.server_ip = string.Empty;
             this.database = string.Empty;
             this.login = string.Empty;
